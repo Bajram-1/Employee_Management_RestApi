@@ -1,0 +1,19 @@
+﻿@model Employee_Management.BLL.DTO.ViewModels.AddEmployeeViewModel
+
+<h1>Assign Employee to Project</h1>
+<form asp-action="AddEmployee" method="post">
+    <input type="hidden" name="ProjectId" value="@Model.ProjectId" />
+    <div class="form-group">
+        <label for="assigneeId">Select Employee:</label>
+        <select name="AssigneeId" class="form-control" required>
+            <option value="">--Select Employee--</option>
+            @foreach (var employee in Model.EmployeeSelectList)
+            {
+                <option value="@employee.Id">@employee.UserName</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Assign Employee</button>
+</form>
+
+<a asp-action="Index" asp-route-id="@Model.ProjectId" class="btn btn-secondary">Back to Project</a>

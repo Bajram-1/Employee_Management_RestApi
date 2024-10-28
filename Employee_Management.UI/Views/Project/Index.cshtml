@@ -1,0 +1,80 @@
+﻿@model IEnumerable<Employee_Management.BLL.DTO.ViewModels.ProjectViewModel>
+
+<h2 class="text-center mb-4">Projects</h2>
+<div class="user-list-table container shadow-sm p-4 mb-5 bg-white rounded">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.First().Name)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Description)</th>
+                <th>@Html.DisplayNameFor(model => model.First().StartDate)</th>
+                <th>@Html.DisplayNameFor(model => model.First().EndDate)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Status)</th>
+                <th>Assignee</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => project.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => project.Description)</td>
+                    <td>@project.StartDate.ToString("MM/dd/yyyy")</td>
+                    <td>@project.EndDate.ToString("MM/dd/yyyy")</td>
+                    <td>@Html.DisplayFor(modelItem => project.Status)</td>
+                    <td>
+                        @if (project.Assignee != null)
+                        {
+                            <span>@project.Assignee.UserName</span>
+                        }
+                        else
+                        {
+                            <span>No Assignee</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@project.Id" class="btn btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@project.Id" class="btn btn-danger">Delete</a>
+                        <a asp-action="AddEmployee" asp-route-projectId="@project.Id" class="btn btn-success">Assign Employee</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .user-list-table {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .table {
+        margin-top: 20px;
+        font-size: 1em;
+    }
+
+        .table thead th {
+            text-align: center;
+            font-weight: bold;
+            background-color: #343a40;
+            color: white;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+            text-align: center;
+            padding: 12px;
+        }
+
+    .btn {
+        margin: 0 5px;
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+
+    .text-nowrap {
+        white-space: nowrap;
+    }
+</style>

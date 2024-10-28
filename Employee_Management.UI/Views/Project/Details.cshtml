@@ -1,0 +1,50 @@
+﻿@model Employee_Management.BLL.DTO.ViewModels.ProjectViewModel
+
+<h1>@Model.Name</h1>
+<p><strong>Description:</strong> @Model.Description</p>
+<p><strong>Start Date:</strong> @Model.StartDate.ToString("d")</p>
+<p><strong>End Date:</strong> @Model.EndDate.ToString("d")</p>
+
+<h2>Employees</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Employee Name</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model.Employees)
+
+        {
+            <tr>
+                <td>@employee.FullName</td>
+                <td>
+                    <form asp-action="RemoveEmployee" method="post" style="display:inline;">
+                        <input type="hidden" name="projectId" value="@Model.Id" />
+                        <input type="hidden" name="employeeId" value="@employee.Id" />
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Add Employee to Project</h2>
+<form asp-action="AddEmployee" method="post">
+    <input type="hidden" name="projectId" value="@Model.Id" />
+    <div class="form-group">
+        <label for="employeeId">Select Employee:</label>
+        <select name="employeeId" class="form-control" required>
+            <option value="">--Select Employee--</option>
+            @foreach (var emp in Model.AllEmployees)
+            {
+                <option value="@emp.Id">@emp.FullName</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Employee</button>
+</form>
+
+<a asp-action="Index" class="btn btn-secondary">Back to Projects</a>
