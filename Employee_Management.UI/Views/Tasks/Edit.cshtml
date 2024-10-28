@@ -1,0 +1,79 @@
+﻿@model Employee_Management.BLL.DTO.ViewModels.TaskUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit Task";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="text-center mb-4">Edit Task</h2>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DueDate"></label>
+                <input asp-for="DueDate" class="form-control" type="date" />
+                <span asp-validation-for="DueDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" class="form-control" asp-items="ViewBag.StatusList"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Priority"></label>
+                <select asp-for="Priority" class="form-control" asp-items="ViewBag.PriorityList"></select>
+                <span asp-validation-for="Priority" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .card {
+        margin: 20px auto;
+        max-width: 600px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        border-radius: 4px;
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+    }
+
+    textarea.form-control {
+        resize: none;
+    }
+</style>

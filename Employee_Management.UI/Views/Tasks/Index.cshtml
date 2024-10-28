@@ -1,0 +1,80 @@
+﻿@model IEnumerable<Employee_Management.BLL.DTO.Tasks>
+
+<h2 class="text-center mb-4">Tasks</h2>
+
+<div class="user-list-table container shadow-sm p-4 mb-5 bg-white rounded">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th hidden>@Html.DisplayNameFor(model => model.First().Id)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Title)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Description)</th>
+                <th>@Html.DisplayNameFor(model => model.First().DueDate)</th>
+                <th>@Html.DisplayNameFor(model => model.First().IsCompleted)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Status)</th>
+                <th>@Html.DisplayNameFor(model => model.First().Priority)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td hidden>@Html.DisplayFor(modelItem => item.Id)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>@Html.DisplayFor(modelItem => item.DueDate)</td>
+                    <td>@Html.DisplayFor(modelItem => item.IsCompleted)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Priority)</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-warning" style="margin-right: 15px;" onclick="location.href='@Url.Action("Edit", "Tasks", new { id = item.Id })'">Edit</button>
+                            <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete this task?');" style="display:inline-block;">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .user-list-table {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .table {
+        margin-top: 20px;
+        font-size: 1em;
+    }
+
+        .table thead th {
+            text-align: center;
+            font-weight: bold;
+            background-color: #343a40;
+            color: white;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+            text-align: center;
+            padding: 12px;
+        }
+
+    .btn {
+        margin: 0 5px;
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+
+    .text-nowrap {
+        white-space: nowrap;
+    }
+</style>
+
+@* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-DfXw+R9F9Rb3CwHjMRaz30Z4B3dxTbq3nH1rQ5lZgZyOAV9p7zwSK00M6wPBM4zjwFAzAaZXPA/JY0W5umWq1Q==" crossorigin="anonymous" referrerpolicy="no-referrer" /> *@
