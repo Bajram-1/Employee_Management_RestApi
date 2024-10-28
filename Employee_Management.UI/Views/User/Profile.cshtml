@@ -1,0 +1,87 @@
+﻿@model Employee_Management.BLL.DTO.ViewModels.UserProfileViewModel
+
+<div class="profile-wrapper">
+    <div class="profile-header">
+        <h2>@Model.UserName's Profile</h2>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-picture-container">
+            <img src="@Model.ProfilePicture" alt="Profile Picture" class="profile-picture" />
+        </div>
+
+        <div class="profile-details">
+            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> @Model.Email</p>
+            <p><i class="fas fa-user-tag"></i> <strong>Role:</strong> @Model.Role</p>
+            <p><i class="fas fa-city"></i> <strong>City:</strong> @Model.City</p>
+            <p><i class="fas fa-phone"></i> <strong>Phone Number:</strong> @Model.PhoneNumber</p>
+            <a asp-action="Index" class="btn btn-primary back-button">Back to List</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .profile-header {
+        margin-bottom: 15px;
+    }
+
+    .profile-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-picture-container {
+        margin-bottom: 15px;
+    }
+
+    .profile-picture {
+        max-width: 150px;
+        border-radius: 50%;
+        border: 4px solid #007bff;
+        padding: 4px;
+    }
+
+    .profile-details p {
+        font-size: 1.1em;
+        margin: 8px 0;
+        color: #333;
+    }
+
+    .profile-details i {
+        color: #007bff;
+        margin-right: 8px;
+    }
+
+    .back-button {
+        margin-top: 15px;
+        font-size: 1em;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+        .back-button:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+</style>
+
+
+@* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" /> *@
