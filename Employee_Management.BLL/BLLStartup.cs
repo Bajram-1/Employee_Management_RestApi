@@ -14,7 +14,6 @@ namespace Employee_Management.BLL
         public static void RegisterBLLServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IAuthService, AuthService>();
