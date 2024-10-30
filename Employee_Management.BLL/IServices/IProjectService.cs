@@ -11,11 +11,15 @@ namespace Employee_Management.BLL.IServices
     public interface IProjectService
     {
         Task<IEnumerable<ProjectViewModel>> GetAllProjectsAsync();
-        Task<Project> GetProjectByIdAsync(int id);
+        Task<ProjectViewModel> GetProjectByIdAsync(int id);
         Task<Project> CreateProjectAsync(ProjectCreateViewModel model);
-        Task UpdateProjectAsync(Project project);
+        Task<bool> UpdateProjectAsync(int id, ProjectUpdateViewModel model);
         Task<bool> DeleteProjectAsync(int id);
-        Task AddEmployeeToProjectAsync(int projectId, int employeeId);
-        Task<List<string>> GetUsernamesByIdsAsync(IEnumerable<string> userIds);
+        Task AddEmployeeToProjectAsync(int projectId, int userId);
+        Task<List<EmployeeViewModel>> GetAssignedEmployeesAsync(int projectId);
+        Task<bool> RemoveEmployeeFromProjectAsync(int projectId, int employeeId);
+        Task<bool> HasOpenTasksAsync(int projectId);
+        Task<bool> IsUserAssignedToProject(int projectId, int userId);
+        Task<List<EmployeeViewModel>> GetEmployeesAssignedToProjectAsync(int projectId);
     }
 }
