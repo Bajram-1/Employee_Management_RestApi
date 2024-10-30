@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Employee_Management.BLL\Employee_Management.BLL.csproj" />
     <ProjectReference Include="..\Employee_Management.DAL\Employee_Management.DAL.csproj" />
+    <ProjectReference Include="..\Employee_Management.UI\Employee_Management.UI.csproj" />
   </ItemGroup>
 
 </Project>

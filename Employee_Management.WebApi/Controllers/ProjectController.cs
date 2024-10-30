@@ -1,72 +1,190 @@
-﻿using Employee_Management.BLL.DTO;
-using Employee_Management.BLL.DTO.ViewModels;
-using Employee_Management.Common;
-using Employee_Management.DAL;
+﻿using Employee_Management.BLL.DTO.ViewModels;
+using Employee_Management.BLL.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Employee_Management.API.Controllers
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class ProjectController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProjectsController : ControllerBase
+    private readonly IProjectService _projectService;
+    private readonly ITaskService _taskService;
+    private readonly IUserService _userService;
+    private readonly ILogger<ProjectController> _logger;
+
+    public ProjectController(IProjectService projectService, ITaskService taskService, IUserService userService, ILogger<ProjectController> logger)
     {
-        private readonly ApplicationDbContext _context;
+        _projectService = projectService;
+        _taskService = taskService;
+        _userService = userService;
+        _logger = logger;
+    }
 
-        public ProjectsController(ApplicationDbContext context)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ProjectViewModel>>> GetProjects()
+    {
+        var projects = await _projectService.GetAllProjectsAsync();
+        var projectViewModels = projects.Select(project => new ProjectViewModel
         {
-            _context = context;
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            StartDate = project.StartDate,
+            EndDate = project.EndDate,
+            Status = project.Status,
+            Assignees = project.Assignees
+        }).ToList();
+
+        return Ok(projectViewModels);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ProjectViewModel>> CreateProject(ProjectCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
         }
 
-        [HttpPost]
-        [Authorize(StaticDetails.Role_Admin)]
-        public async Task<IActionResult> CreateProject([FromBody] ProjectCreateViewModel model)
+        var project = await _projectService.CreateProjectAsync(model);
+        var projectViewModel = new ProjectViewModel
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            StartDate = project.StartDate,
+            EndDate = project.EndDate,
+            Status = project.Status,
+            Assignees = project.ProjectAssignees.Select(pa => pa.User.UserName).ToList()
+        };
 
-            var project = new Employee_Management.DAL.Entities.Project
-            {
-                Name = model.Name,
-                StartDate = DateTime.Now,
-                EndDate = model.EndDate,
-                Description = model.Description,
-            };
+        return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, projectViewModel);
+    }
 
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProjectViewModel>> GetProjectById(int id)
+    {
+        var project = await _projectService.GetProjectByIdAsync(id);
+        if (project == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<IActionResult> GetProject(int id)
+        var projectViewModel = new ProjectViewModel
         {
-            var project = await _context.Projects.Include(p => p.Tasks).SingleOrDefaultAsync(p => p.Id == id);
-            if (project == null) return NotFound();
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            StartDate = project.StartDate,
+            EndDate = project.EndDate,
+            Status = project.Status,
+            Assignees = project.Assignees
+        };
 
-            return Ok(project);
+        return Ok(projectViewModel);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateProject(int id, ProjectUpdateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
         }
 
-        [HttpDelete("{id}")]
-        [Authorize(StaticDetails.Role_Admin)]
-        public async Task<IActionResult> DeleteProject(int id)
+        var success = await _projectService.UpdateProjectAsync(id, model);
+        if (!success)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null) return NotFound();
-
-            if (project.Tasks.Any(t => !t.IsCompleted))
-            {
-                return BadRequest("Cannot delete a project with open tasks.");
-            }
-
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return StatusCode(500, "Internal server error while updating project.");
         }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProject(int id)
+    {
+        if (await _projectService.HasOpenTasksAsync(id))
+        {
+            return BadRequest("Cannot delete project. There are open tasks associated with this project.");
+        }
+
+        var success = await _projectService.DeleteProjectAsync(id);
+        if (!success)
+        {
+            return StatusCode(500, "Internal server error while deleting project.");
+        }
+
+        return NoContent();
+    }
+
+    [HttpPost("createTask")]
+    public async Task<IActionResult> CreateTask([FromBody] TaskCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var taskViewModel = await _taskService.CreateTaskAsync(model);
+            return Ok(taskViewModel);
+        }
+        catch (DbUpdateException ex)
+        {
+            // Log the exception details for further investigation
+            _logger.LogError(ex, "An error occurred while creating the task.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the task. Please try again later.");
+        }
+    }
+
+    [HttpGet("{projectId}/employees")]
+    public async Task<ActionResult<IEnumerable<EmployeeViewModel>>> GetProjectEmployees(int projectId)
+    {
+        var project = await _projectService.GetProjectByIdAsync(projectId);
+        var users = await _userService.GetAllUsersAsync();
+        if (project == null || users == null)
+        {
+            return NotFound();
+        }
+
+        var employeeViewModels = users.Select(u => new EmployeeViewModel
+        {
+            Id = u.Id,
+            FullName = u.UserName
+        }).ToList();
+
+        return Ok(employeeViewModels);
+    }
+
+    [HttpPost("{projectId}/employees")]
+    public async Task<IActionResult> AddEmployeesToProject(int projectId, List<int> assigneeIds)
+    {
+        if (assigneeIds == null || assigneeIds.Count == 0)
+        {
+            return BadRequest("Please select at least one employee.");
+        }
+
+        foreach (var userId in assigneeIds)
+        {
+            await _projectService.AddEmployeeToProjectAsync(projectId, userId);
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{projectId}/employees/{employeeId}")]
+    public async Task<IActionResult> RemoveEmployeeFromProject(int projectId, int employeeId)
+    {
+        var success = await _projectService.RemoveEmployeeFromProjectAsync(projectId, employeeId);
+        if (!success)
+        {
+            return StatusCode(500, "Failed to remove the employee from the project.");
+        }
+
+        return NoContent();
     }
 }
