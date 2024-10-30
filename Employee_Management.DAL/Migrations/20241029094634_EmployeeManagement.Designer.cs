@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Employee_Management.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241028091235_AddedProjectAssigneesRelation")]
-    partial class AddedProjectAssigneesRelation
+    [Migration("20241029094634_EmployeeManagement")]
+    partial class EmployeeManagement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,6 +33,9 @@ namespace Employee_Management.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AssigneeId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -47,10 +50,13 @@ namespace Employee_Management.DAL.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssigneeId");
 
                     b.ToTable("Projects");
                 });
@@ -94,6 +100,9 @@ namespace Employee_Management.DAL.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -128,7 +137,6 @@ namespace Employee_Management.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -161,7 +169,6 @@ namespace Employee_Management.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ProfilePicture")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -176,6 +183,9 @@ namespace Employee_Management.DAL.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("StreetAddress")
                         .HasColumnType("nvarchar(max)");
@@ -362,6 +372,16 @@ namespace Employee_Management.DAL.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Employee_Management.DAL.Entities.Project", b =>
+                {
+                    b.HasOne("Employee_Management.DAL.Entities.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Assignee");
                 });
 
             modelBuilder.Entity("Employee_Management.DAL.Entities.ProjectAssignee", b =>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Employee_Management.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241028144143_AddedStatusToProject")]
-    partial class AddedStatusToProject
+    [Migration("20241029152332_AddAssignedEmployeeIdToTasks")]
+    partial class AddAssignedEmployeeIdToTasks
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,9 +33,8 @@ namespace Employee_Management.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Assignees")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("AssigneeId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -57,6 +56,8 @@ namespace Employee_Management.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssigneeId");
+
                     b.ToTable("Projects");
                 });
 
@@ -73,44 +74,6 @@ namespace Employee_Management.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ProjectAssignees");
-                });
-
-            modelBuilder.Entity("Employee_Management.DAL.Entities.Tasks", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("Employee_Management.DAL.Entities.User", b =>
@@ -235,6 +198,53 @@ namespace Employee_Management.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("UserProfiles");
+                });
+
+            modelBuilder.Entity("Entities.Tasks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedEmployeeId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -370,6 +380,16 @@ namespace Employee_Management.DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Employee_Management.DAL.Entities.Project", b =>
+                {
+                    b.HasOne("Employee_Management.DAL.Entities.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Assignee");
+                });
+
             modelBuilder.Entity("Employee_Management.DAL.Entities.ProjectAssignee", b =>
                 {
                     b.HasOne("Employee_Management.DAL.Entities.Project", "Project")
@@ -389,17 +409,6 @@ namespace Employee_Management.DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Employee_Management.DAL.Entities.Tasks", b =>
-                {
-                    b.HasOne("Employee_Management.DAL.Entities.Project", "Project")
-                        .WithMany("Tasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("Employee_Management.DAL.Entities.UserProfile", b =>
                 {
                     b.HasOne("Employee_Management.DAL.Entities.User", "User")
@@ -409,6 +418,23 @@ namespace Employee_Management.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Entities.Tasks", b =>
+                {
+                    b.HasOne("Employee_Management.DAL.Entities.User", "AssignedEmployee")
+                        .WithMany()
+                        .HasForeignKey("AssignedEmployeeId");
+
+                    b.HasOne("Employee_Management.DAL.Entities.Project", "Project")
+                        .WithMany("Tasks")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedEmployee");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
