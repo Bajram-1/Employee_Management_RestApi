@@ -14,6 +14,7 @@ namespace Employee_Management.BLL.DTO.ViewModels
         public DateTime EndDate { get; set; }
         public string Description { get; set; }
         public ProjectStatus Status { get; set; }
+        public int AssigneeId { get; set; }
         public List<string> Assignees { get; set; } = new List<string>();
         public List<EmployeeViewModel> AllEmployees = new List<EmployeeViewModel>();
     }
