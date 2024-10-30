@@ -17,13 +17,21 @@ namespace Employee_Management.UI.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
-        [AllowAnonymous]
         [HttpGet]
-        public IActionResult Login() => View();
+        public IActionResult Login()
+        {
+            return View("Login");
+        }
 
-        [HttpPost]
+        [AllowAnonymous]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var user = await _userService.ValidateUser(model.UserName, model.Password);
             if (user == null)
             {
@@ -32,7 +40,13 @@ namespace Employee_Management.UI.Controllers
             }
 
             var token = _jwtTokenService.GenerateToken(user);
-            Response.Cookies.Append("jwt", token, new CookieOptions { HttpOnly = true, Secure = true });
+            Response.Cookies.Append("jwt", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddHours(1)
+            });
 
             return RedirectToAction("Index", "Home");
         }
