@@ -1,5 +1,6 @@
 ﻿using Employee_Management.DAL.Entities;
 using Employee_Management.DAL.IRepositories;
+using Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Employee_Management.DAL.Repositories

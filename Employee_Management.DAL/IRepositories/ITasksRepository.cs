@@ -1,4 +1,5 @@
 ﻿using Employee_Management.DAL.Entities;
+using Entities;
 
 namespace Employee_Management.DAL.IRepositories
 {
