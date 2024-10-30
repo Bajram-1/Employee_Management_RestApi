@@ -1,19 +1,40 @@
 ﻿@model Employee_Management.BLL.DTO.ViewModels.AddEmployeeViewModel
 
-<h1>Assign Employee to Project</h1>
-<form asp-action="AddEmployee" method="post">
-    <input type="hidden" name="ProjectId" value="@Model.ProjectId" />
-    <div class="form-group">
-        <label for="assigneeId">Select Employee:</label>
-        <select name="AssigneeId" class="form-control" required>
-            <option value="">--Select Employee--</option>
-            @foreach (var employee in Model.EmployeeSelectList)
-            {
-                <option value="@employee.Id">@employee.UserName</option>
-            }
-        </select>
+<h2 class="text-center mb-4">Add Employees to Project</h2>
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0">Select Employees</h4>
     </div>
-    <button type="submit" class="btn btn-primary">Assign Employee</button>
-</form>
+    <div class="card-body">
+        <form asp-action="AddEmployee" method="post">
+            <input type="hidden" asp-for="ProjectId" />
+            <div class="form-group">
+                <label>Select Employees</label>
+                <select asp-for="AssigneeIds" class="form-control" multiple="multiple">
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <option value="@employee.Id">@employee.FullName</option>
+                    }
+                </select>
+                <span asp-validation-for="AssigneeIds" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Add Employees</button>
+                <a asp-action="Index" class="btn btn-secondary ml-2">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
 
-<a asp-action="Index" asp-route-id="@Model.ProjectId" class="btn btn-secondary">Back to Project</a>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .card { max-width: 700px; margin: 0 auto; }
+    .form-group label { font-weight: bold; }
+    .form-control { border-radius: 0.25rem; }
+    .btn-primary { background-color: #4CAF50; border-color: #4CAF50; }
+</style>
