@@ -1,9 +1,7 @@
 ﻿using Employee_Management.BLL.DTO;
 using Employee_Management.BLL.DTO.ViewModels;
 using Employee_Management.BLL.IServices;
-using Employee_Management.Common;
 using Employee_Management.Common.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
