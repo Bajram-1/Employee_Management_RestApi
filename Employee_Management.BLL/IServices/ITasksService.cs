@@ -10,10 +10,12 @@ namespace Employee_Management.BLL.IServices
 {
     public interface ITaskService
     {
-        Task<IEnumerable<Employee_Management.BLL.DTO.Tasks>> GetAllTasksAsync();
-        Task<Tasks> GetTaskByIdAsync(int id);
-        Task<Tasks> CreateTaskAsync(TaskCreateViewModel model);
+        Task<TaskViewModel> GetTaskByIdAsync(int id);
+        Task<TaskViewModel> CreateTaskAsync(TaskCreateViewModel model);
         Task UpdateTaskAsync(int id, TaskUpdateViewModel model);
         Task DeleteTaskAsync(int id);
+        Task<IEnumerable<DTO.Tasks>> GetAllTasksAsync();
+        Task AssignTaskToEmployeeAsync(int taskId, int employeeId);
+        Task MarkTaskAsCompletedAsync(int id);
     }
 }
