@@ -1,4 +1,5 @@
 ﻿using Employee_Management.DAL.Entities;
+using Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -31,13 +32,19 @@ namespace Employee_Management.DAL
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Project>()
+                .HasOne(p => p.Assignee)
+                .WithMany()
+                .HasForeignKey(p => p.AssigneeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Project>()
                 .HasMany(p => p.Tasks)
                 .WithOne(t => t.Project)
                 .HasForeignKey(t => t.ProjectId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProjectAssignee>()
-            .HasKey(pa => new { pa.ProjectId, pa.UserId });
+                .HasKey(pa => new { pa.ProjectId, pa.UserId });
 
             modelBuilder.Entity<ProjectAssignee>()
                 .HasOne(pa => pa.Project)
