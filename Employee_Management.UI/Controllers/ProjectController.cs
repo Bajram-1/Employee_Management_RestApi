@@ -1,9 +1,7 @@
 ﻿using Employee_Management.BLL.DTO.ViewModels;
 using Employee_Management.BLL.IServices;
-using Employee_Management.Common;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace Employee_Management.UI.Controllers
 {
@@ -21,11 +19,20 @@ namespace Employee_Management.UI.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var projects = await _projectService.GetAllProjectsAsync();
-            return View(projects);
+            var projectViewModels = projects.Select(project => new ProjectViewModel
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                StartDate = project.StartDate,
+                EndDate = project.EndDate,
+                Status = project.Status,
+                Assignees = project.Assignees
+            }).ToList();
+            return View(projectViewModels);
         }
 
         [HttpGet("Create")]
@@ -34,7 +41,7 @@ namespace Employee_Management.UI.Controllers
             var allEmployees = await _userService.GetAllUsersAsync();
             var model = new ProjectCreateViewModel
             {
-                AllEmployees = allEmployees
+                AllEmployees = allEmployees.ToList()
             };
             return View(model);
         }
@@ -51,15 +58,50 @@ namespace Employee_Management.UI.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet("CreateTask/{projectId}")]
+        [HttpGet("CreateTask")]
         public async Task<IActionResult> CreateTask(int projectId)
         {
-            var model = new TaskCreateViewModel
-            {
-                ProjectId = projectId
-            };
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //if (string.IsNullOrEmpty(userIdString) ||!int.TryParse(userIdString, out var userId))
+            //{
+            //    TempData["Error"] = "Unable to identify the user. Please log in again.";
+            //    return RedirectToAction("Index", "Project");
+            //}
 
+            //if (!await _projectService.IsUserAssignedToProject(projectId, userId))
+            //{
+            //    TempData["Error"] = "You are not assigned to this project.";
+            //    return RedirectToAction("Index", "Project");
+            //}
+
+            var project = await _projectService.GetProjectByIdAsync(projectId);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var model = new TaskCreateViewModel { ProjectId = projectId };
             return View(model);
+        }
+
+        [HttpPost("CreateTask")]
+        public async Task<IActionResult> CreateTask(TaskCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Validate ProjectId
+            var project = await _projectService.GetProjectByIdAsync(model.ProjectId);
+            if (project == null)
+            {
+                ModelState.AddModelError("", "Invalid Project ID.");
+                return View(model);
+            }
+
+            await _taskService.CreateTaskAsync(model);
+            return RedirectToAction("Index", "Project", new { id = model.ProjectId });
         }
 
         [HttpGet("Edit/{id}")]
@@ -91,8 +133,8 @@ namespace Employee_Management.UI.Controllers
                 return View(model);
             }
 
-            bool success = await _projectService.UpdateProjectAsync(id, model);
-            if (success == false)
+            var success = await _projectService.UpdateProjectAsync(id, model);
+            if (!success)
             {
                 ModelState.AddModelError("", "Unable to save changes. Try again.");
                 return View(model);
@@ -122,13 +164,20 @@ namespace Employee_Management.UI.Controllers
             return View(projectDto);
         }
 
-        [HttpPost("DeleteConfirmed")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpPost("DeleteProject")]
+        public async Task<IActionResult> DeleteProject(int id)
         {
-            var isDeleted = await _projectService.DeleteProjectAsync(id);
-            if (!isDeleted)
+            if (await _projectService.HasOpenTasksAsync(id))
             {
-                return NotFound();
+                TempData["Error"] = "Cannot delete project. There are open tasks associated with this project.";
+                return RedirectToAction("Index");
+            }
+
+            bool success = await _projectService.DeleteProjectAsync(id);
+            if (!success)
+            {
+                TempData["Error"] = "Cannot delete project. There are open tasks associated with this project.";
+                return RedirectToAction("Index");
             }
 
             return RedirectToAction("Index");
@@ -139,23 +188,58 @@ namespace Employee_Management.UI.Controllers
         {
             var project = await _projectService.GetProjectByIdAsync(projectId);
             var users = await _userService.GetAllUsersAsync();
-
             if (project == null || users == null)
             {
                 return NotFound();
             }
 
+            var employeeViewModels = users.Select(u => new EmployeeViewModel
+            {
+                Id = u.Id,
+                FullName = u.UserName
+            }).ToList();
+
             var model = new AddEmployeeViewModel
             {
                 ProjectId = project.Id,
-                EmployeeSelectList = users.ToList()
+                Employees = employeeViewModels
             };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddEmployee(int projectId, int assigneeId)
+        public async Task<IActionResult> AddEmployee(int projectId, List<int> assigneeIds)
+        {
+            if (assigneeIds == null || assigneeIds.Count == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Please select at least one employee.");
+                var allUsers = await _userService.GetAllUsersAsync();
+                var allEmployees = allUsers.Select(u => new EmployeeViewModel
+                {
+                    Id = u.Id,
+                    FullName = u.UserName
+                }).ToList();
+
+                var addEmployeeModel = new AddEmployeeViewModel
+                {
+                    ProjectId = projectId,
+                    Employees = allEmployees
+                };
+                return View("AddEmployee", addEmployeeModel);
+            }
+
+            foreach (var userId in assigneeIds)
+            {
+                await _projectService.AddEmployeeToProjectAsync(projectId, userId);
+            }
+
+            var projects = await _projectService.GetAllProjectsAsync();
+            return RedirectToAction("Index", projects);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RemoveEmployee(int projectId)
         {
             var project = await _projectService.GetProjectByIdAsync(projectId);
             if (project == null)
@@ -163,31 +247,44 @@ namespace Employee_Management.UI.Controllers
                 return NotFound();
             }
 
-            project.AssigneeId = assigneeId;
-            await _projectService.UpdateProjectAsync(project);
+            var assignedEmployees = await _projectService.GetAssignedEmployeesAsync(projectId);
 
-            return RedirectToAction("Index");
+            var model = new RemoveEmployeeViewModel
+            {
+                ProjectId = project.Id,
+                ProjectName = project.Name,
+                AssignedEmployees = assignedEmployees
+            };
+
+            return View(model);
         }
 
-        private async Task<IEnumerable<ProjectViewModel>> GetProjectsViewModel()
+        [HttpPost]
+        public async Task<IActionResult> RemoveEmployee(int projectId, int employeeId)
         {
-            var projects = await _projectService.GetAllProjectsAsync() ?? Enumerable.Empty<ProjectViewModel>();
-            return projects.Select(project => new ProjectViewModel
+            var project = await _projectService.GetProjectByIdAsync(projectId);
+
+            if (project == null)
             {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                StartDate = DateTime.Now,
-                EndDate = project.EndDate,
-                Employees = project.Employees != null
-                            ? project.Employees.Select(e => new EmployeeViewModel
-                            {
-                                Id = e.Id,
-                                FullName = e.FullName
-                            }).ToList()
-                            : new List<EmployeeViewModel>(),
-                AllEmployees = new List<EmployeeViewModel>()
-            });
+                return NotFound();
+            }
+
+            var success = await _projectService.RemoveEmployeeFromProjectAsync(projectId, employeeId);
+
+            if (!success)
+            {
+                ModelState.AddModelError("", "Failed to remove the employee from the project.");
+                var assignedEmployees = await _projectService.GetAssignedEmployeesAsync(projectId);
+                var model = new RemoveEmployeeViewModel
+                {
+                    ProjectId = project.Id,
+                    ProjectName = project.Name,
+                    AssignedEmployees = assignedEmployees
+                };
+                return View(model);
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

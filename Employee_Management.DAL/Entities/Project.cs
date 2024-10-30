@@ -1,4 +1,5 @@
 ﻿using Employee_Management.Common.Enums;
+using Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,9 +25,11 @@ namespace Employee_Management.DAL.Entities
         public DateTime EndDate { get; set; }
 
         public string Status { get; set; }
+        public int? AssigneeId { get; set; }
 
         public ICollection<Tasks> Tasks { get; set; } = new List<Tasks>();
 
         public ICollection<ProjectAssignee> ProjectAssignees { get; set; } = new List<ProjectAssignee>();
+        public User Assignee { get; set; }
     }
 }
