@@ -9,7 +9,7 @@
         <h2 class="text-center mb-4">Edit Task</h2>
     </div>
     <div class="card-body">
-        <form asp-action="Edit">
+        <form asp-action="Edit" onsubmit="return validateDates()">
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Title"></label>
@@ -23,13 +23,14 @@
             </div>
             <div class="form-group">
                 <label asp-for="StartDate"></label>
-                <input asp-for="StartDate" class="form-control" type="date" placeholder="MM/dd/yyyy" />
+                <input asp-for="StartDate" class="form-control" type="date" placeholder="MM/dd/yyyy" id="StartDate" />
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="DueDate"></label>
-                <input asp-for="DueDate" class="form-control" type="date" placeholder="MM/dd/yyyy" />
+                <input asp-for="DueDate" class="form-control" type="date" placeholder="MM/dd/yyyy" id="DueDate" />
                 <span asp-validation-for="DueDate" class="text-danger"></span>
+                <span id="dateError" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Status"></label>
@@ -51,6 +52,22 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        function validateDates() {
+            const startDate = new Date(document.getElementById("StartDate").value);
+            const dueDate = new Date(document.getElementById("DueDate").value);
+            const dateError = document.getElementById("dateError");
+
+            if (dueDate < startDate) {
+                dateError.textContent = "Due Date cannot be earlier than Start Date.";
+                return false;
+            } else {
+                dateError.textContent = "";
+                return true;
+            }
+        }
+    </script>
 }
 
 <style>

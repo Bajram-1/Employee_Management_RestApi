@@ -154,20 +154,23 @@ namespace Employee_Management.UI.Controllers
         public async Task<IActionResult> AssignTask(int taskId)
         {
             var task = await _taskService.GetTaskByIdAsync(taskId);
+
             if (task == null)
             {
                 return NotFound();
             }
 
-            var employees = await _projectService.GetEmployeesAssignedToProjectAsync(task.ProjectId);
+            var allEmployees = await _userService.GetAllUsersAsync();
+            var assignedEmployeeIds = await _taskService.GetAssignedEmployeeIdsAsync(taskId);
+            var availableEmployees = allEmployees.Where(e => !assignedEmployeeIds.Contains(e.Id)).ToList();
 
             var model = new TaskAssignmentViewModel
             {
                 TaskId = taskId,
-                Employees = employees.Select(e => new EmployeeViewModel
+                Employees = availableEmployees.Select(e => new EmployeeViewModel
                 {
                     Id = e.Id,
-                    FullName = e.FullName
+                    FullName = e.UserName
                 }).ToList()
             };
 
@@ -175,6 +178,7 @@ namespace Employee_Management.UI.Controllers
         }
 
         [HttpPost("AssignTask")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignTask(TaskAssignmentViewModel model)
         {
             if (!ModelState.IsValid)

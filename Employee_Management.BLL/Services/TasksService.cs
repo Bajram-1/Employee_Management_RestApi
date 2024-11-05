@@ -54,6 +54,14 @@ namespace Employee_Management.BLL.Services
             return taskViewModel;
         }
 
+        public async Task<List<int>> GetAssignedEmployeeIdsAsync(int taskId)
+        {
+            return await _context.Tasks
+                .Where(t => t.Id == taskId)
+                .SelectMany(t => t.TaskAssignments.Select(a => a.EmployeeId))
+                .ToListAsync();
+        }
+
         public async Task<TaskViewModel> GetTaskByIdAsync(int id)
         {
             var task = await _context.Tasks.FindAsync(id);
@@ -123,6 +131,7 @@ namespace Employee_Management.BLL.Services
             if (task == null) throw new KeyNotFoundException("Task not found");
 
             task.IsCompleted = true;
+            task.Status = Common.Enums.TaskStatus.Completed;
 
             _context.Tasks.Update(task);
             await _context.SaveChangesAsync();

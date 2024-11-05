@@ -17,5 +17,6 @@ namespace Employee_Management.BLL.IServices
         Task<IEnumerable<DTO.Tasks>> GetAllTasksAsync();
         Task AssignTaskToEmployeeAsync(int taskId, int employeeId);
         Task MarkTaskAsCompletedAsync(int id);
+        Task<List<int>> GetAssignedEmployeeIdsAsync(int taskId);
     }
 }

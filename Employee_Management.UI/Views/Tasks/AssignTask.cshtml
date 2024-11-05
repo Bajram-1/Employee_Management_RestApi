@@ -1,14 +1,16 @@
-﻿@using Employee_Management.BLL.DTO.ViewModels
-@model Employee_Management.BLL.DTO.ViewModels.TaskAssignmentViewModel
+﻿@model Employee_Management.BLL.DTO.ViewModels.TaskAssignmentViewModel
 
 <h2 class="text-center mb-4">Assign Task</h2>
 <div class="container shadow-sm p-4 mb-5 bg-white rounded">
-    <form asp-action="AssignTask" method="post">
-        <input type="hidden" asp-for="TaskId" /> <!-- Ensure this field is correctly set -->
+    <form asp-controller="Tasks" asp-action="AssignTask" asp-route-taskId="@Model.TaskId" method="post">
+        @Html.AntiForgeryToken()
+        
+        <input type="hidden" asp-for="TaskId" />
         <div class="mb-3">
             <div class="form-group">
                 <label asp-for="EmployeeId">Assign to Employee</label>
                 <select asp-for="EmployeeId" class="form-control">
+                    <option value="">-- Select Employee --</option>
                     @foreach (var employee in Model.Employees)
                     {
                         <option value="@employee.Id">@employee.FullName</option>
@@ -29,3 +31,10 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
+<style>
+    .container { max-width: 600px; margin: 0 auto; }
+    .form-group label { font-weight: bold; }
+    .form-control { border-radius: 0.25rem; }
+    .btn-primary { background-color: #4CAF50; border-color: #4CAF50; }
+</style>

@@ -29,6 +29,6 @@ namespace Entities
         public Project Project { get; set; }
 
         public int? AssignedEmployeeId { get; set; }
-        public User AssignedEmployee { get; set; }
+        public ICollection<TaskAssignment> TaskAssignments { get; set; } = new List<TaskAssignment>();
     }
 }
