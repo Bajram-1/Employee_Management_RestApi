@@ -56,7 +56,6 @@ namespace Employee_Management.DAL.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                // If the update failed due to concurrency, get the current database values
                 var entry = ex.Entries.Single();
                 var databaseValues = entry.GetDatabaseValues();
 
