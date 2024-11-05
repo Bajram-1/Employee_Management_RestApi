@@ -20,6 +20,7 @@ namespace Employee_Management.DAL
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Tasks> Tasks { get; set; }
+        public DbSet<TaskAssignment> TaskAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +72,19 @@ namespace Employee_Management.DAL
             modelBuilder.Entity<User>()
                 .Property(u => u.RowVersion)
                 .IsRowVersion();
+
+            modelBuilder.Entity<TaskAssignment>()
+            .HasKey(ta => new { ta.TaskId, ta.EmployeeId });
+
+            modelBuilder.Entity<TaskAssignment>()
+                .HasOne(ta => ta.Task)
+                .WithMany(t => t.TaskAssignments)
+                .HasForeignKey(ta => ta.TaskId);
+
+            modelBuilder.Entity<TaskAssignment>()
+                .HasOne(ta => ta.Employee)
+                .WithMany()
+                .HasForeignKey(ta => ta.EmployeeId);
         }
     }
 }
