@@ -1,5 +1,6 @@
 ﻿using Employee_Management.BLL.DTO.ViewModels;
 using Employee_Management.BLL.IServices;
+using Employee_Management.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -92,7 +93,6 @@ namespace Employee_Management.UI.Controllers
                 return View(model);
             }
 
-            // Validate ProjectId
             var project = await _projectService.GetProjectByIdAsync(model.ProjectId);
             if (project == null)
             {
@@ -108,21 +108,31 @@ namespace Employee_Management.UI.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var project = await _projectService.GetProjectByIdAsync(id);
-
             if (project == null)
             {
                 return NotFound();
             }
 
-            var projectEditViewModel = new ProjectUpdateViewModel
+            var users = await _userService.GetAllUsersAsync();
+
+            var employees = users.Select(user => new EmployeeViewModel
+            {
+                Id = user.Id,
+                FullName = user.UserName,                
+            }).ToList();
+
+            var model = new ProjectUpdateViewModel
             {
                 Name = project.Name,
                 Description = project.Description,
                 StartDate = project.StartDate,
                 EndDate = project.EndDate,
+                Status = (ProjectStatus)Enum.Parse(typeof(ProjectStatus), project.Status),
+                AssigneeIds = project.ProjectAssignees.Select(pa => pa.EmployeeId).ToList(),
+                AllEmployees = employees
             };
 
-            return View(projectEditViewModel);
+            return View(model);
         }
 
         [HttpPost("Edit/{id}")]

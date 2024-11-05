@@ -77,20 +77,41 @@ namespace Employee_Management.BLL.Services
 
         public async Task<bool> UpdateProjectAsync(int id, ProjectUpdateViewModel model)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null) return false;
+            var project = await _context.Projects.Include(p => p.ProjectAssignees).FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+            {
+                return false;
+            }
 
             project.Name = model.Name;
             project.Description = model.Description;
             project.StartDate = model.StartDate;
             project.EndDate = model.EndDate;
-            project.Status = model.Status.ToString();
-            project.AssigneeId = model.AssigneeId;
 
-            _context.Projects.Update(project);
-            await _context.SaveChangesAsync();
+            project.ProjectAssignees.Clear();
 
-            return true;
+            foreach (var assigneeId in model.AssigneeIds)
+            {
+                if (await _context.Users.AnyAsync(u => u.Id == assigneeId))
+                {
+                    project.ProjectAssignees.Add(new ProjectAssignee { UserId = assigneeId });
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException)
+            {
+                return false;
+            }
         }
 
         public async Task AddEmployeeToProjectAsync(int projectId, int userId)

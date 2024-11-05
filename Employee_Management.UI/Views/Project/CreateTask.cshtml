@@ -11,7 +11,7 @@
         <h4 class="mb-0">Task Details</h4>
     </div>
     <div class="card-body">
-        <form asp-controller="Tasks" asp-action="Create" method="post">
+        <form asp-controller="Tasks" asp-action="Create" method="post" onsubmit="return validateDates()">
             <div class="form-group">
                 <label asp-for="Title"></label>
                 <input asp-for="Title" class="form-control" placeholder="Enter task title" />
@@ -23,20 +23,22 @@
                 <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter task description"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="StartDate"></label>
-                <input asp-for="StartDate" class="form-control" type="date" placeholder="MM/dd/yyyy" />
+                <input asp-for="StartDate" id="StartDate" class="form-control" type="date" />
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="DueDate"></label>
-                <input asp-for="DueDate" class="form-control" type="date" placeholder="MM/dd/yyyy" />
+                <input asp-for="DueDate" id="DueDate" class="form-control" type="date" />
                 <span asp-validation-for="DueDate" class="text-danger"></span>
             </div>
 
             <input type="hidden" asp-for="ProjectId" />
 
-            <br />
+            <div id="dateError" class="text-danger mb-3"></div>
 
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Create</button>
@@ -50,6 +52,28 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("StartDate").value = today;
+            document.getElementById("DueDate").value = today;
+        });
+
+        function validateDates() {
+            const startDate = new Date(document.getElementById("StartDate").value);
+            const dueDate = new Date(document.getElementById("DueDate").value);
+            const dateError = document.getElementById("dateError");
+
+            if (dueDate < startDate) {
+                dateError.textContent = "Due Date cannot be earlier than Start Date.";
+                return false;
+            } else {
+                dateError.textContent = "";
+                return true;
+            }
+        }
+    </script>
 }
 
 <style>

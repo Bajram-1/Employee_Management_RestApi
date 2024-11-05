@@ -10,11 +10,14 @@
         @TempData["Error"]
     </div>
 }
+
 <div class="user-list-table container shadow-sm p-4 mb-5 bg-white rounded">
-    <div class="mb-3 text-end">
-        <a asp-controller="Project" asp-action="Create" class="btn btn-primary btn-lg">Create Project</a>
+    <div class="mb-3">
+        <a asp-controller="Project" asp-action="Create" class="btn btn-primary btn-lg" title="Create Project">
+            <i class="fas fa-plus"></i> Create Project
+        </a>
     </div>
-    <table class="table table-striped table-hover table-bordered">
+    <table id="projectTable" class="table table-striped table-hover table-bordered">
         <thead class="thead-dark">
             <tr>
                 <th hidden>@Html.DisplayNameFor(model => model.First().Id)</th>
@@ -41,7 +44,6 @@
                             foreach (var assignee in project.Assignees)
                             {
                                 <span>@assignee</span>
-
                                 <br />
                             }
                         }
@@ -52,14 +54,24 @@
                     </td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a asp-controller="Project" asp-action="CreateTask" asp-route-projectId="@project.Id" class="btn btn-primary btn-sm">Create Task</a>
-                            <a asp-action="Edit" asp-route-id="@project.Id" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-controller="Project" asp-action="CreateTask" asp-route-projectId="@project.Id" class="btn btn-primary btn-sm" title="Create Task">
+                                <i class="fas fa-tasks"></i> Create Task
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@project.Id" class="btn btn-warning btn-sm" title="Edit Project">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
                             <form asp-action="DeleteProject" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');" style="display:inline-block;">
                                 <input type="hidden" name="id" value="@project.Id" />
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete Project">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
                             </form>
-                            <a asp-action="AddEmployee" asp-route-projectId="@project.Id" class="btn btn-success btn-sm">Assign Employee</a>
-                            <a asp-action="RemoveEmployee" asp-route-projectId="@project.Id" class="btn btn-outline-danger btn-sm">Remove Employee</a>
+                            <a asp-action="AddEmployee" asp-route-projectId="@project.Id" class="btn btn-success btn-sm" title="Assign Employee">
+                                <i class="fas fa-user-plus"></i> Assign Employee
+                            </a>
+                            <a asp-action="RemoveEmployee" asp-route-projectId="@project.Id" class="btn btn-outline-danger btn-sm" title="Remove Employee">
+                                <i class="fas fa-user-times"></i> Remove Employee
+                            </a>
                         </div>
                     </td>
                 </tr>
@@ -70,8 +82,9 @@
 
 <style>
     .user-list-table {
-        max-width: 1000px;
+        max-width: 2200px;
         margin: 0 auto;
+        padding: 20px;
     }
 
     .table {
@@ -103,7 +116,7 @@
     }
 
     .btn-lg {
-        font-size: 1.2em;
+        font-size: 1em;
         padding: 12px 24px;
     }
 
@@ -137,3 +150,24 @@
         white-space: nowrap;
     }
 </style>
+
+@section Scripts {
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap.min.css" />
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#projectTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "pageLength": 10,
+                "lengthChange": true,
+                "info": true
+            });
+        });
+    </script>
+}
