@@ -4,6 +4,7 @@ using Employee_Management.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Employee_Management.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241104185335_AddedTaskAssignmentEntity")]
+    partial class AddedTaskAssignmentEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +58,7 @@ namespace Employee_Management.DAL.Migrations
 
                     b.HasIndex("AssigneeId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Employee_Management.DAL.Entities.ProjectAssignee", b =>
@@ -70,7 +73,7 @@ namespace Employee_Management.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectAssignees", (string)null);
+                    b.ToTable("ProjectAssignees");
                 });
 
             modelBuilder.Entity("Employee_Management.DAL.Entities.TaskAssignment", b =>
@@ -85,7 +88,7 @@ namespace Employee_Management.DAL.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.ToTable("TaskAssignments", (string)null);
+                    b.ToTable("TaskAssignments");
                 });
 
             modelBuilder.Entity("Employee_Management.DAL.Entities.User", b =>
@@ -209,7 +212,7 @@ namespace Employee_Management.DAL.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
                 });
 
             modelBuilder.Entity("Entities.Tasks", b =>
@@ -254,7 +257,7 @@ namespace Employee_Management.DAL.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
