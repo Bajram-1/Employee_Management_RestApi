@@ -33,7 +33,6 @@ namespace Employee_Management.BLL.Services
                 throw new UnauthorizedAccessException("Invalid credentials");
             }
 
-            // Generate JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_secret);
             var tokenDescriptor = new SecurityTokenDescriptor
