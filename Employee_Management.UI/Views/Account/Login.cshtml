@@ -6,27 +6,40 @@
         <div class="card-body p-4 text-center">
             <h2 class="text-center mb-4" style="color: #007bff;">Login</h2>
 
-            <form asp-action="Login" method="post">
-                <div class="form-group row align-items-center mb-3">
-                    <label asp-for="UserName" class="col-4 col-form-label text-right font-weight-bold" style="font-size: 0.9rem;">Username:</label>
-                    <div class="col-8">
-                        <input asp-for="UserName" class="form-control" style="padding: .375rem .75rem; height: 38px;" placeholder="Enter your username" />
-                        <span asp-validation-for="UserName" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center mb-3">
-                    <label asp-for="Password" class="col-4 col-form-label text-right font-weight-bold" style="font-size: 0.9rem;">Password:</label>
-                    <div class="col-8">
-                        <input asp-for="Password" type="password" class="form-control" style="padding: .375rem .75rem; height: 38px;" placeholder="Enter your password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                </div>
-
+            @if (User.Identity.IsAuthenticated)
+            {
                 <div class="form-group text-center">
-                    <button type="submit" class="btn btn-primary px-4" style="width: 250px; height: 38px; font-size: 1rem;">Login</button>
+                    <p>Welcome, @User.Identity.Name!</p>
+                    <form asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger px-4" style="width: 250px; height: 38px; font-size: 1rem;">Logout</button>
+                    </form>
                 </div>
-            </form>
+            }
+            else
+            {
+                <form asp-action="Login" method="post">
+                    <div class="form-group row align-items-center mb-3">
+                        <label asp-for="UserName" class="col-4 col-form-label text-right font-weight-bold" style="font-size: 0.9rem;">Username:</label>
+                        <div class="col-8">
+                            <input asp-for="UserName" class="form-control" style="padding: .375rem .75rem; height: 38px;" placeholder="Enter your username" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row align-items-center mb-3">
+                        <label asp-for="Password" class="col-4 col-form-label text-right font-weight-bold" style="font-size: 0.9rem;">Password:</label>
+                        <div class="col-8">
+                            <input asp-for="Password" type="password" class="form-control" style="padding: .375rem .75rem; height: 38px;" placeholder="Enter your password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary px-4" style="width: 250px; height: 38px; font-size: 1rem;">Login</button>
+                    </div>
+                </form>
+            }
         </div>
     </div>
 </div>

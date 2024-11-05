@@ -23,8 +23,8 @@ namespace Employee_Management.UI.Controllers
             return View("Login");
         }
 
-        [AllowAnonymous]
-        [HttpPost("login")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
@@ -44,14 +44,13 @@ namespace Employee_Management.UI.Controllers
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddHours(1)
+                SameSite = SameSiteMode.None
             });
-
             return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("jwt");
