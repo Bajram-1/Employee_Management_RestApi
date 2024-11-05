@@ -13,9 +13,6 @@ namespace Employee_Management.DAL.Entities
 {
     public class User : IdentityUser<int>
     {
-        //[Key]
-        //public int Id { get; set; }
-        //public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string Role { get; set; }
         public string PhoneNumber { get; set; }
@@ -26,7 +23,6 @@ namespace Employee_Management.DAL.Entities
         [NotMapped]
         public IFormFile? ProfilePictureFile { get; set; }
         public UserProfile Profile { get; set; }
-        //public ICollection<Project> Projects { get; set; }
         public ICollection<ProjectAssignee> ProjectAssignees { get; set; } = new List<ProjectAssignee>();
         [Timestamp]
         public byte[] RowVersion { get; set; }

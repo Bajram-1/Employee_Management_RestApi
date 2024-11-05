@@ -1,7 +1,10 @@
 ﻿using Employee_Management.BLL.DTO;
 using Employee_Management.BLL.DTO.ViewModels;
 using Employee_Management.BLL.IServices;
+using Employee_Management.Common;
 using Employee_Management.Common.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
@@ -32,7 +35,7 @@ namespace Employee_Management.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("UserName,Email,Password,Role,City,PhoneNumber,ProfilePictureFile")] UserCreateViewModel model)
+        public async Task<IActionResult> Create(UserCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -57,10 +60,11 @@ namespace Employee_Management.UI.Controllers
                     UserName = model.UserName,
                     PasswordHash = hashedPassword,
                     Email = model.Email,
+                    EmailConfirmed = true,
                     Role = model.Role,
                     City = model.City,
                     PhoneNumber = model.PhoneNumber,
-                    ProfilePicture = profilePicturePath
+                    ProfilePicture = profilePicturePath,
                 };
 
                 await _userService.AddUserAsync(user);
@@ -117,40 +121,38 @@ namespace Employee_Management.UI.Controllers
                 return View(model);
             }
 
-            if (ModelState.IsValid)
+            var existingUser = await _userService.GetUserByIdAsync(model.Id);
+            if (existingUser == null) return NotFound();
+
+            string profilePicturePath = existingUser.ProfilePicture;
+
+            if (model.ProfilePictureFile != null)
             {
-                string profilePicturePath = model.ProfilePicture;
-
-                if (model.ProfilePictureFile != null)
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profiles");
+                Directory.CreateDirectory(uploadsFolder);
+                var fileName = $"{model.UserName}_{Path.GetFileName(model.ProfilePictureFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profiles");
-                    Directory.CreateDirectory(uploadsFolder);
-                    var fileName = $"{model.UserName}_{Path.GetFileName(model.ProfilePictureFile.FileName)}";
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.ProfilePictureFile.CopyToAsync(fileStream);
-                    }
-                    profilePicturePath = $"/images/profiles/{fileName}";
+                    await model.ProfilePictureFile.CopyToAsync(fileStream);
                 }
-
-                var dtoUser = new User
-                {
-                    Id = model.Id,
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    PasswordHash = model.Password,
-                    Role = model.Role,
-                    City = model.City,
-                    PhoneNumber = model.PhoneNumber,
-                    ProfilePicture = profilePicturePath
-                };
-
-                await _userService.UpdateUserAsync(dtoUser);
-                return RedirectToAction("Index", "User");
+                profilePicturePath = $"/images/profiles/{fileName}";
             }
 
-            return View(model);
+            var dtoUser = new User
+            {
+                Id = model.Id,
+                UserName = model.UserName,
+                Email = model.Email,
+                PasswordHash = !string.IsNullOrWhiteSpace(model.Password) ? model.Password : existingUser.PasswordHash,
+                Role = model.Role,
+                City = model.City,
+                PhoneNumber = model.PhoneNumber,
+                ProfilePicture = profilePicturePath
+            };
+
+            await _userService.UpdateUserAsync(dtoUser);
+            return RedirectToAction("Index", "User");
         }
 
         [HttpPost]

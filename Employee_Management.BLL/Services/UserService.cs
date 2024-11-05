@@ -3,6 +3,7 @@ using Employee_Management.BLL.IServices;
 using Employee_Management.Common.Enums;
 using Employee_Management.DAL.Entities;
 using Employee_Management.DAL.IRepositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -54,6 +55,7 @@ namespace Employee_Management.BLL.Services
             {
                 UserName = dtoUser.UserName,
                 Email = dtoUser.Email,
+                EmailConfirmed = true,
                 PasswordHash = dtoUser.PasswordHash,
                 Role = dtoUser.Role.ToString(),
                 City = dtoUser.City,

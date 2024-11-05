@@ -13,17 +13,25 @@ namespace Employee_Management.BLL.DTO
 {
     public class User : IdentityUser<int>
     {
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "Email is required.")]
+        [MaxLength(100, ErrorMessage = "Email cannot exceed 100 characters.")]
+        [EmailAddress(ErrorMessage = "Invalid email address format.")]
         public new string Email { get; set; }
 
+        [Required(ErrorMessage = "Role is required.")]
         public UserRole Role { get; set; }
 
+        [MaxLength(50, ErrorMessage = "City cannot exceed 50 characters.")]
         public string? City { get; set; }
+
+        [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must contain only numbers.")]
+        [Phone(ErrorMessage = "Invalid phone number format.")]
         public string? PhoneNumber { get; set; }
+
         public string? ProfilePicture { get; set; }
 
         [NotMapped]
+        [FileExtensions(Extensions = "jpg,jpeg,png", ErrorMessage = "Only .jpg, .jpeg, or .png image files are allowed.")]
         public IFormFile? ProfilePictureFile { get; set; }
 
         public ICollection<Tasks> AssignedTasks { get; set; } = new List<Tasks>();

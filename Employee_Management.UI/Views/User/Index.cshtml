@@ -1,49 +1,51 @@
 ﻿@model IEnumerable<Employee_Management.BLL.DTO.User>
 
-<h2 class="text-center mb-4">User List</h2>
+<h2 class="text-center mb-4">Users</h2>
 
 <div class="user-list-table container shadow-sm p-4 mb-5 bg-white rounded">
-    <a href="@Url.Action("Create", "User")" class="btn btn-success btn-sm" title="Create">
+    <a href="@Url.Action("Create", "User")" class="btn btn-success" title="Create" style="margin-bottom: 20px;">
         <i class="fas fa-plus"></i> Create
     </a>
-    <table class="table table-striped table-hover table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.First().UserName)</th>
-                <th>@Html.DisplayNameFor(model => model.First().Email)</th>
-                <th>@Html.DisplayNameFor(model => model.First().Role)</th>
-                <th>@Html.DisplayNameFor(model => model.First().City)</th>
-                <th>@Html.DisplayNameFor(model => model.First().PhoneNumber)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <div class="table-responsive">
+        <table id="userTable" class="table table-striped table-hover table-bordered">
+            <thead class="thead-dark">
                 <tr>
-                    <td>@Html.DisplayFor(modelItem => item.UserName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Role)</td>
-                    <td>@Html.DisplayFor(modelItem => item.City)</td>
-                    <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
-                    <td class="text-nowrap">
-                        <a href="@Url.Action("Edit", "User", new { id = item.Id })" class="btn btn-primary btn-sm" title="Edit">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                        <a href="@Url.Action("Profile", "User", new { id = item.Id })" class="btn btn-info btn-sm" title="View Profile">
-                            <i class="fas fa-eye"></i> View
-                        </a>
-                        <form asp-action="Delete" method="post" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <button type="submit" class="btn btn-danger btn-sm" title="Delete">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </form>
-                    </td>
+                    <th>@Html.DisplayNameFor(model => model.First().UserName)</th>
+                    <th>@Html.DisplayNameFor(model => model.First().Email)</th>
+                    <th>@Html.DisplayNameFor(model => model.First().Role)</th>
+                    <th>@Html.DisplayNameFor(model => model.First().City)</th>
+                    <th>@Html.DisplayNameFor(model => model.First().PhoneNumber)</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Role)</td>
+                        <td>@Html.DisplayFor(modelItem => item.City)</td>
+                        <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                        <td class="text-nowrap">
+                            <a href="@Url.Action("Edit", "User", new { id = item.Id })" class="btn btn-primary btn-sm" title="Edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="@Url.Action("Profile", "User", new { id = item.Id })" class="btn btn-info btn-sm" title="View Profile">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <form asp-action="Delete" method="post" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <style>
@@ -76,9 +78,32 @@
         font-size: 0.9em;
     }
 
+    .btn-succeess{
+        font-size: 1em;
+    }
+
     .text-nowrap {
         white-space: nowrap;
     }
 </style>
 
-@* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-DfXw+R9F9Rb3CwHjMRaz30Z4B3dxTbq3nH1rQ5lZgZyOAV9p7zwSK00M6wPBM4zjwFAzAaZXPA/JY0W5umWq1Q==" crossorigin="anonymous" referrerpolicy="no-referrer" /> *@
+@section Scripts {
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap.min.css" />
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#userTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "pageLength": 10,
+                "lengthChange": true,
+                "info": true
+            });
+        });
+    </script>
+}
