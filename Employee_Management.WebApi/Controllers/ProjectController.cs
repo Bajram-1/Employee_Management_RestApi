@@ -114,7 +114,7 @@ public class ProjectController : ControllerBase
         var success = await _projectService.DeleteProjectAsync(id);
         if (!success)
         {
-            return StatusCode(500, "Internal server error while deleting project.");
+            return StatusCode(500, "Project with that id does not exist in database.");
         }
 
         return NoContent();
@@ -135,7 +135,6 @@ public class ProjectController : ControllerBase
         }
         catch (DbUpdateException ex)
         {
-            // Log the exception details for further investigation
             _logger.LogError(ex, "An error occurred while creating the task.");
             return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the task. Please try again later.");
         }
