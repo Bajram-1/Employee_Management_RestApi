@@ -53,6 +53,7 @@ namespace Employee_Management.DAL.DbInitializer
                 {
                     UserName = "bani",
                     Email = "admin@gmail.com",
+                    EmailConfirmed = true,
                     PasswordHash = "Albania128.",
                     Role = "Admin",
                     PhoneNumber = "0695668776",
