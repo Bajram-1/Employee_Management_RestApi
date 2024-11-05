@@ -104,7 +104,7 @@ builder.Services.AddScoped<JwtTokenService>();
 
 var app = builder.Build();
 
-await SeedDatabaseAsync(app);
+await SeedDatabaseAsync();
 
 if (!app.Environment.IsDevelopment())
 {
